@@ -67,6 +67,7 @@ def get_own_post():
 
       if own_media['meta']['code'] == 200:
           if len(own_media['data']):
+              #Fetching the most recent media
               image_name = own_media['data'][0]['id'] + '.jpeg'
               image_url = own_media['data'][0]['images']['standard_resolution']['url']
               urllib.urlretrieve(image_url, image_name)
@@ -89,6 +90,7 @@ def get_user_post(insta_username):
 
     if user_media['meta']['code'] == 200:
         if len(user_media['data']):
+            # Fetching the most recent media
             image_name = user_media['data'][0]['id'] + '.jpeg'
             image_url = user_media['data'][0]['images']['standard_resolution']['url']
             urllib.urlretrieve(image_url, image_name)
@@ -217,7 +219,28 @@ def delete_negative_comment(insta_username):
                  print "Positive comment"
      else:
       print "Status code other than 200 received"
+'''
+Method to get alerts about natural calamities
+'''
+def natural_calamities():
 
+
+    tag_name=raw_input("Enter the tag for searching posts")
+    if tag_name=="earthquake" or tag_name=="flood" or tag_name=="drought"or tag_name=="landslide" or tag_name=="drought"or tag_name=="cyclone" or tag_name=="tsunami":
+        request_url=(base_url+'/tags/%s/media/recent?access_token=%s' )%(tag_name,APP_ACCESS_TOKEN)
+        print 'GET %s'%request_url
+        disaster=requests.get(request_url).json()
+        print disaster
+
+        if len(disaster['data']):
+            for x in range(0,len(disaster['data'])):
+                print disaster['data'][x]['location']
+                image_name=disaster['data'][x]['id']+'.jpeg'
+                image_url=disaster['data'][x]['images']['standard_resolution']['url']
+                urllib.urlretrieve(image_url,image_name)
+                print "Downloaded succesfully"
+        else:
+            "image not found"
 '''
  Method to inialize bot
 '''
@@ -235,7 +258,8 @@ def start_bot():
         print "g.Get a list of comments on the recent post of a user\n"
         print "h.Make a comment on the recent post of a user\n"
         print "i.Delete negative comments from the recent post of a user\n"
-        print "j.Exit"
+        print "j.Information about natural calamities\n"
+        print "k.exit"
 
         choice = raw_input("Enter you choice: ")
         if choice == "a":
@@ -264,7 +288,9 @@ def start_bot():
         elif choice == "i":
             insta_username = raw_input("Enter the username of the user: ")
             delete_negative_comment(insta_username)
-        elif choice == "j":
+        elif choice=="j":
+            natural_calamities()
+        elif choice == "k":
             exit()
         else:
             print "wrong choice"
