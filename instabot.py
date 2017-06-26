@@ -246,7 +246,7 @@ def get_location():
 Method to get alerts about natural calamities
 '''
 def natural_calamities():
- location_id=get_location()
+ get_location()
  tag_name=raw_input("Enter the tag for searching posts")
  if tag_name=="earthquake" or tag_name=="flood" or tag_name=="drought"or tag_name=="landslide" or tag_name=="drought"or tag_name=="cyclone" or tag_name=="tsunami":
         request_url=(base_url+'/tags/%s/media/recent?access_token=%s' )%(tag_name,APP_ACCESS_TOKEN)
@@ -266,9 +266,10 @@ def natural_calamities():
                           print disaster['data'][x]['link']
                           print colored("image found","green")
                       break
-
+         else:
+             print  colored("image not found" ,"red")
         else:
-            print colored("image not found" ,"red")
+            print colored("status code other than 200 received" ,"red")
  else:
         print colored("Tags inserted doesnot match " ,"red")
 '''
