@@ -3,6 +3,7 @@ from keys import base_url,APP_ACCESS_TOKEN
 #importing textblob
 from textblob import TextBlob
 from textblob.sentiments import NaiveBayesAnalyzer
+from termcolor import colored
 #importing requests
 import requests
 #importing urllib
@@ -32,9 +33,9 @@ def get_user_id(insta_username):
         if len(search_results['data']):
             return search_results['data'][0]['id']
         else:
-            print 'User does not exist!'
+            print colored('User does not exist!' ,'red')
     else:
-        print 'Status code other than 200 was received!'
+        print colored('Status code other than 200 was received!','red')
         return None
 
 '''
@@ -43,7 +44,7 @@ Method to get user information by providing username providing user_name
 def get_user_info(insta_username):
       user_id = get_user_id(insta_username)
       if user_id == None:
-          print 'User does not exist!'
+          print colored('User does not exist!','red')
           exit()
       request_url = (base_url + '/users/%s?access_token=%s') % (user_id, APP_ACCESS_TOKEN)
       print 'GET request url : %s' % (request_url)
@@ -56,9 +57,9 @@ def get_user_info(insta_username):
               print 'No. of people you are following: %s' % (user_info['data']['counts']['follows'])
               print 'No. of posts: %s' % (user_info['data']['counts']['media'])
           else:
-              print 'There is no data for this user!'
+              print colored('There is no data for this user!' ,'red')
       else:
-          print 'Status code other than 200 received!'
+          print colored('Status code other than 200 received!','red')
 '''
 Function to download pictures of own post
 '''
@@ -73,18 +74,18 @@ def get_own_post():
               image_name = own_media['data'][0]['id'] + '.jpeg'
               image_url = own_media['data'][0]['images']['standard_resolution']['url']
               urllib.urlretrieve(image_url, image_name)
-              print 'Your image has been downloaded!'
+              print colored('Your image has been downloaded!' ,'green')
           else:
-              print 'Post does not exist!'
+              print colored('Post does not exist!' ,'red')
       else:
-          print 'Status code other than 200 received!'
+          print colored( 'Status code other than 200 received!', 'red')
 '''
 Function for downloading a user's posts
 '''
 def get_user_post(insta_username):
     user_id = get_user_id(insta_username)
     if user_id == None:
-        print 'User does not exist!'
+        print colored('User does not exist!' ,'red')
         exit()
     request_url = (base_url + '/users/%s/media/recent/?access_token=%s') % (user_id, APP_ACCESS_TOKEN)
     print 'GET request url : %s' % (request_url)
@@ -96,32 +97,28 @@ def get_user_post(insta_username):
             image_name = user_media['data'][0]['id'] + '.jpeg'
             image_url = user_media['data'][0]['images']['standard_resolution']['url']
             urllib.urlretrieve(image_url, image_name)
-            print 'Your image has been downloaded!'
+            print colored('Your image has been downloaded!' ,'green')
         else:
-            print 'Post does not exist!'
+            print colored('Post does not exist!','red')
     else:
-        print 'Status code other than 200 received!'
+        print colored( 'Status code other than 200 received!' ,'red')
 
 '''
 Method to get posts liked by user
 '''
 def get_user_liked_post():
-
-
     request_url= (base_url+'/users/self/media/liked?access_token=%s')%( APP_ACCESS_TOKEN)
     user_liked=requests.get(request_url).json()
-
-
     if user_liked['meta']['code']==200:
         if len (user_liked['data']):
             image_name = user_liked['data'][0]['id'] + '.jpeg'
             image_url = user_liked['data'][0]['images']['standard_resolution']['url']
             urllib.urlretrieve(image_url,image_name)
-            print "Liked media has been downloaded!"
+            print colored( "Liked media has been downloaded!",'green')
         else:
-            print "Could not find posts"
+            print colored( "Could not find posts" ,'red')
     else:
-        print 'Status code other than 200 received'
+        print colored('Status code other than 200 received','red')
 '''
 Method to get post Id of a user by providing username
 '''
@@ -132,13 +129,12 @@ def get_post_id(insta_username):
     user_media=requests.get(request_url).json()
     if user_media['meta']['code'] == 200:
         if len(user_media['data']):
-
-            return user_media['data'][0]['id']
+          return user_media['data'][0]['id']
         else:
-            print 'There is no recent post of the user!'
+            print colored('There is no recent post of the user!' ,'red')
             exit()
     else:
-        print 'Status code other than 200 received!'
+        print colored( 'Status code other than 200 received!' ,'red')
         exit()
 
 
@@ -148,14 +144,17 @@ Method to like a post of a user
 
 def like_a_post(insta_username):
     media_id=get_post_id(insta_username)
+    if media_id==None:
+        print colored("User does not exist","red")
+        exit()
     request_url=(base_url+'/media/%s/likes')%media_id
     payload={"access_token":APP_ACCESS_TOKEN}
     print 'POST request url : %s' % (request_url)
     post_a_like=requests.post(request_url,payload).json()
     if post_a_like['meta']['code']==200:
-        print "You have successfully liked a post"
+        print colored( "You have successfully liked a post" ,'green')
     else:
-        print "Sorry ! the like was unsuccessful"
+        print colored( "Sorry ! the like was unsuccessful" ,'red')
         exit()
 
 '''
@@ -169,10 +168,10 @@ def get_comment_list(insta_username):
     if comment_list['meta']['code']==200:
         for x in range(0, len(comment_list['data'])):
 
-            print comment_list['data'][x]['text']
-            print"\n Comments list successfully shown"
+            print colored( comment_list['data'][x]['text'],'blue')
+        print colored("\n Comments list successfully shown" ,"green")
     else:
-         print "No comments"
+         print  colored ("No comments", 'red')
 
 
 '''
@@ -181,18 +180,18 @@ Function to post a comment on a  user's post using username
 def post_a_comment(insta_username):
     media_id=get_post_id(insta_username)
     comment_text=raw_input("Your comment:")
+    print colored(comment_text, 'red')
 
     request_url=(base_url+"/media/%s/comments")%(media_id)
     payload = {"access_token": APP_ACCESS_TOKEN, "text": comment_text}
     post_a_comment=requests.post(request_url,payload).json()
     print 'POST request url : %s' % (request_url)
     if post_a_comment['meta']['code']==200:
-        print "Thanks! Your comment has been posted successfully"
+        print colored( "Thanks! Your comment has been posted successfully" ,'green')
 
     else:
-        print "Failed! Comment has not been posted.Please try again"
+        print colored( "Failed! Comment has not been posted.Please try again" ,'red')
         exit()
-
 
 '''
 Function to delete neagtive comment from a user's post
@@ -213,14 +212,14 @@ def delete_negative_comment(insta_username):
                  delete_url=(base_url+'media/%s/comments/%s/?access_token=%s')%APP_ACCESS_TOKEN
                  delete_info=requests.delete(delete_url).json()
                  if delete_info['meta']['code']==200:
-                     print "Comment deleted successfully"
+                     print  colored("Comment deleted successfully" ,'green')
 
                  else:
-                     print "Sorry we couldn't delete this comment! Try Again"
+                     print colored("Sorry we couldn't delete this comment! Try Again" ,'red')
              else:
-                 print "Positive comment"
+                 print colored( "Positive comment" ,'blue')
      else:
-      print "Status code other than 200 received"
+      print colored("Status code other than 200 received",'red')
 '''
 Method to get location
 '''
@@ -239,11 +238,10 @@ def get_location():
             id= location['data'][x]['id']
             id=int(id)
             loc.append(id)
-         print loc
+         print colored (loc, 'green')
 
     else:
-        print "Meta code other than 200 found"
-
+        print  colored("Meta code other than 200 received", 'red')
 '''
 Method to get alerts about natural calamities
 '''
@@ -263,16 +261,16 @@ def natural_calamities():
                 loc_id=disaster['data'][x]['location']['id']
                 for x in range(0,len(loc)):
                   if loc_id==loc[x]:
-                      print "Matched!"
+                      print colored( "Matched! successfully" , 'green')
                       for x in range(0, len(disaster['data'])):
                           print disaster['data'][x]['link']
-                          print "image found"
+                          print colored("image found","green")
                       break
 
         else:
-            "image not found"
+            print colored("image not found" ,"red")
  else:
-        print "Tags inserted doesnot match "
+        print colored("Tags inserted doesnot match " ,"red")
 '''
  Method to inialize bot
 '''
@@ -325,7 +323,7 @@ def start_bot():
         elif choice == "k":
             exit()
         else:
-            print "wrong choice"
+            print colored( "wrong choice" ,"red")
 
 
 start_bot()
