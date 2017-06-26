@@ -7,6 +7,7 @@ from textblob.sentiments import NaiveBayesAnalyzer
 import requests
 #importing urllib
 import urllib
+loc=[]
 '''
 Function declaration to get your own account information
 '''
@@ -220,27 +221,57 @@ def delete_negative_comment(insta_username):
      else:
       print "Status code other than 200 received"
 '''
+Method to get location
+'''
+def get_location():
+    lat=raw_input("Enter latitude coordiante of the location")
+    lat=float(lat)
+    lon=raw_input("Enter longitude coordinate of the location")
+    lon=float(lon)
+    request_url=(base_url+'/locations/search?lat=%.2f&lng=%.2f&access_token=%s')%(lat,lon,APP_ACCESS_TOKEN)
+    print 'GET %s'%request_url
+    location=requests.get(request_url).json()
+    if location['meta']['code']==200:
+        if len(location['data']):
+         for x in range(0,len(location['data'])):
+            print location['data'][x]['id']+" "+location['data'][x]['name']
+            id= location['data'][x]['id']
+            id=int(id)
+            loc.append(id)
+         print loc
+
+    else:
+        print "Meta code other than 200 found"
+
+'''
 Method to get alerts about natural calamities
 '''
 def natural_calamities():
-
-
-    tag_name=raw_input("Enter the tag for searching posts")
-    if tag_name=="earthquake" or tag_name=="flood" or tag_name=="drought"or tag_name=="landslide" or tag_name=="drought"or tag_name=="cyclone" or tag_name=="tsunami":
+ location_id=get_location()
+ tag_name=raw_input("Enter the tag for searching posts")
+ if tag_name=="earthquake" or tag_name=="flood" or tag_name=="drought"or tag_name=="landslide" or tag_name=="drought"or tag_name=="cyclone" or tag_name=="tsunami":
         request_url=(base_url+'/tags/%s/media/recent?access_token=%s' )%(tag_name,APP_ACCESS_TOKEN)
         print 'GET %s'%request_url
         disaster=requests.get(request_url).json()
-        print disaster
-
-        if len(disaster['data']):
+        #print disaster
+        if disaster['meta']['code']==200:
+         if len(disaster['data']):
             for x in range(0,len(disaster['data'])):
-                print disaster['data'][x]['location']
-                image_name=disaster['data'][x]['id']+'.jpeg'
-                image_url=disaster['data'][x]['images']['standard_resolution']['url']
-                urllib.urlretrieve(image_url,image_name)
-                print "Downloaded succesfully"
+                print disaster['data'][x]['location']['id']
+                print disaster['data'][x]['location']['name']
+                loc_id=disaster['data'][x]['location']['id']
+                for x in range(0,len(loc)):
+                  if loc_id==loc[x]:
+                      print "Matched!"
+                      for x in range(0, len(disaster['data'])):
+                          print disaster['data'][x]['link']
+                          print "image found"
+                      break
+
         else:
             "image not found"
+ else:
+        print "Tags inserted doesnot match "
 '''
  Method to inialize bot
 '''
