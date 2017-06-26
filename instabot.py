@@ -7,6 +7,7 @@ from textblob.sentiments import NaiveBayesAnalyzer
 import requests
 #importing urllib
 import urllib
+#list for location id
 loc=[]
 '''
 Function declaration to get your own account information
